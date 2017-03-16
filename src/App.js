@@ -1,0 +1,128 @@
+import React from 'react';
+//import ReactDOM from 'react-dom';
+import './App.css';
+
+
+//Variables
+var Cards = [
+    '2♥', '2♣', '2♠', '2♦',
+    '3♥', '3♣', '3♠', '3♦',
+    '4♥', '4♣', '4♠', '4♦',
+    '5♥', '5♣', '5♠', '5♦',
+    '6♥', '6♣', '6♠', '6♦',
+    '7♥', '7♣', '7♠', '7♦',
+    '8♥', '8♣', '8♠', '8♦',
+    '9♥', '9♣', '9♠', '9♦',
+    '10♥', '10♣', '10♠', '10♦',
+    '11♥', '11♣', '11♠', '11♦',
+    '12♥', '12♣', '12♠', '12♦',
+    '13♥', '13♣', '13♠', '13♦',
+    '14♥', '14♣', '14♠', '14♦'
+  ];
+
+//Functions
+function shuffleCards(cardArray) {
+    cardArray.slice();
+    var currentIndex = cardArray.length;
+    var tempValue;
+    var randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+        // And swap it with the current element.
+        tempValue = cardArray[currentIndex];
+        cardArray[currentIndex] = cardArray[randomIndex];
+        cardArray[randomIndex] = tempValue;
+    }
+    return cardArray;
+}
+
+// function randNumGenerator() {
+//     return Math.floor(Math.random() * 14) + 2;
+// }
+
+
+
+//Game component
+var FullGame = React.createClass({
+    getInitialState: function() {
+        return {
+            PlayerOneDeck: [],
+            PlayerTwoDeck: [],
+            GameStatus: 0
+        };
+    },
+    beginGame() {
+        console.log("Let the games begin!");
+
+        var deck = shuffleCards(Cards);
+
+        this.setState({
+          GameStatus: 1,
+          PlayerOneDeck: deck.slice(0, 26),
+          PlayerTwoDeck: deck.slice(26)
+        });
+
+    },
+    continueGame() {
+
+      var aDeck = this.state.PlayerOneDeck;
+      var bDeck = this.state.PlayerTwoDeck;
+
+      var aCard = aDeck.shift();
+      var bCard = bDeck.shift();
+
+      var cardsInBattle = [];
+      cardsInBattle.push(aCard, bCard);
+      var battleOver = false;
+
+      while(!battleOver){
+        if(parseInt(aCard, 10) > parseInt(bCard, 10)){
+          aDeck.push.apply(aDeck, cardsInBattle);
+          battleOver = true;
+        }
+        else if(parseInt(aCard, 10) < parseInt(bCard, 10)){
+          bDeck.push.apply(bDeck, cardsInBattle);
+              battleOver = true;
+        }
+
+        else{
+          cardsInBattle.push(aDeck.shift(), bDeck.shift());
+          aCard = aDeck.shift();
+          bCard = bDeck.shift();
+          cardsInBattle.push(aCard, bCard);
+          console.log(cardsInBattle);
+        }
+
+      }
+
+       this.setState({
+         PlayerOneDeck: aDeck,
+         PlayerTwoDeck: bDeck,
+       });
+
+    },
+    handleClick() {
+        if (this.state.GameStatus === 0) {
+            this.beginGame();
+        } else {
+            this.continueGame();
+        }
+    },
+    render: function() {
+        return <div>
+            <div className="card playing-card">{this.state.PlayerOneDeck[0]}
+                <div className="win-count">Cards remaining: {this.state.PlayerOneDeck.length}</div>
+            </div>
+            <div className="card playing-card">{this.state.PlayerTwoDeck[0]}
+                <div className="win-count">Cards remaining: {this.state.PlayerTwoDeck.length}</div>
+            </div>
+            <button className="button" onClick={this.handleClick}>GO TO WAR!</button>
+        </div>
+    }
+});
+
+export default FullGame;
